@@ -1,0 +1,26 @@
+<div
+  class="w-full relative overflow-visible"
+  data-controller="<%= stimulus_id %>"
+  data-<%= stimulus_id %>-customers-url-value="<%= solidus_admin.customers_for_order_path(@order) %>"
+  data-action="
+    <%= component('ui/search_panel').stimulus_id %>:search-><%= stimulus_id %>#search
+    <%= component('ui/search_panel').stimulus_id %>:submit-><%= stimulus_id %>#selectResult
+  "
+>
+  <%= render component('ui/search_panel').new(
+    title: t('.title'),
+    search_placeholder: t('.search_placeholder'),
+    id: :order_cart,
+  ) do |panel| %>
+    <% if @order.user || @order.email %>
+      <div class="p-6 border-t border-gray-100 flex-col gap-2">
+        <div class="py-2">
+          <span><%= @customer.name %> <%= tag.em(t('.guest'), class: "italic") unless @customer.id %></span>
+          <%= render component('ui/button').new(icon: 'edit-line', scheme: :ghost, tag: :a, href: solidus_admin.edit_order_customer_path(@order, @customer), alt: t(".edit")) %>
+        </div>
+        <%= link_to_if @customer.id, @customer.email, spree.admin_user_path(@customer), class: 'body-link body-small' %>
+        <div class="text-gray-500 body-small"><%= t('.orders_count', count: @customer.orders.count) %></div>
+      </div>
+    <% end %>
+  <% end %>
+</div>

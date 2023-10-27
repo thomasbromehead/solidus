@@ -2,6 +2,8 @@
 
 module SolidusAdmin
   class OrdersController < SolidusAdmin::BaseController
+    include Spree::Core::ControllerHelpers::StrongParameters
+
     def index
       orders = Spree::Order
         .order(created_at: :desc, id: :desc)
@@ -24,6 +26,18 @@ module SolidusAdmin
       respond_to do |format|
         format.html { render component('orders/show').new(order: @order) }
       end
+    end
+
+    def update
+      load_order
+
+      if @order.update(order_params)
+        flash[:notice] = t('.success')
+      else
+        flash[:error] = t('.error')
+      end
+
+      redirect_to spree.edit_admin_order_path(@order)
     end
 
     def variants_for
@@ -53,11 +67,31 @@ module SolidusAdmin
       end
     end
 
+    def customers_for
+      load_order
+
+      @users = [nil] + Spree.user_class
+        .where.not(id: @order.user_id)
+        .order(created_at: :desc, id: :desc)
+        .ransack(params[:q])
+        .result(distinct: true)
+        .includes(:default_user_bill_address, :default_user_ship_address)
+        .limit(10)
+
+      respond_to do |format|
+        format.html { render component('orders/customer/result').with_collection(@users, order: @order), layout: false }
+      end
+    end
+
     private
 
     def load_order
       @order = Spree::Order.find_by!(number: params[:id])
       authorize! action_name, @order
+    end
+
+    def order_params
+      params.require(:order).permit(permitted_order_attributes)
     end
   end
 end

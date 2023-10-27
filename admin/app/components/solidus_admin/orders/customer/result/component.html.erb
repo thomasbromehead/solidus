@@ -1,0 +1,24 @@
+<%= render component('ui/search_panel/result').new do %>
+  <% if @customer %>
+    <%= form_for(@order, url: solidus_admin.order_path(@order), html: {
+      "data-controller": "readonly-when-submitting",
+      class: "flex items-center",
+    }) do |f| %>
+      <%= hidden_field_tag("#{f.object_name}[user_id]", @customer.id) %>
+      <div class="flex gap-2 grow items-center">
+        <%= render component("ui/icon").new(
+          name: "user-line",
+        ) %>
+        <div  class="flex-col">
+          <div class="leading-5 text-black body-small-bold"><%= @name %></div>
+          <div class="leading-5 text-gray-500 body-small"><%= @customer.email %></div>
+        </div>
+      </div>
+    <% end %>
+  <% else %>
+    <a class="flex gap-2 grow items-center cursor-pointer" href="<%= solidus_admin.new_order_customer_path(@order) %>">
+      <%= render component("ui/icon").new(name: "add-box-fill") %>
+      <div><%= t('.add') %></div>
+    </a>
+  <% end %>
+<% end %>

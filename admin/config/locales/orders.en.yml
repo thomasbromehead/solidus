@@ -2,3 +2,6 @@ en:
   solidus_admin:
     orders:
       title: "Orders"
+      update:
+        success: "Order updated successfully"
+        error: "Order could not be updated"
